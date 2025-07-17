@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Frame-Options" content="ALLOWALL">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
     <title>Interactive Spreadsheet Calculator</title>
     <style>
         * {
@@ -11,58 +13,65 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            min-height: calc(100vh - 20px);
         }
 
         .header {
             background: #4a90e2;
             color: white;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 20px;
+            margin-bottom: 5px;
         }
 
         .header p {
             opacity: 0.9;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .spreadsheet {
-            padding: 20px;
+            padding: 15px;
             overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 12px;
         }
 
         th {
             background: #f8f9fa;
             color: #495057;
-            padding: 12px 8px;
+            padding: 8px 4px;
             text-align: center;
             font-weight: 600;
             border: 1px solid #dee2e6;
-            font-size: 14px;
+            font-size: 11px;
         }
 
         td {
@@ -73,11 +82,11 @@
 
         .cell-input {
             width: 100%;
-            height: 40px;
+            height: 35px;
             border: none;
-            padding: 8px;
+            padding: 5px;
             text-align: center;
-            font-size: 14px;
+            font-size: 11px;
             background: transparent;
             outline: none;
         }
@@ -101,32 +110,35 @@
             background: #f8f9fa;
             font-weight: 600;
             text-align: center;
-            padding: 12px 8px;
+            padding: 8px 4px;
             border: 1px solid #dee2e6;
             white-space: nowrap;
+            font-size: 11px;
+            min-width: 120px;
         }
 
         .controls {
-            padding: 20px;
+            padding: 15px;
             background: #f8f9fa;
             border-top: 1px solid #dee2e6;
         }
 
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: none;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            min-width: 100px;
         }
 
         .btn-primary {
@@ -157,85 +169,87 @@
         }
 
         .formula-display {
-            margin-top: 15px;
-            padding: 15px;
+            margin-top: 10px;
+            padding: 10px;
             background: #e9ecef;
             border-radius: 6px;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 10px;
             color: #495057;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 8px;
-            }
-
-            .header {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .spreadsheet {
-                padding: 15px;
-            }
-
-            .cell-input {
-                font-size: 12px;
-                height: 35px;
-            }
-
-            th, .row-label {
-                padding: 8px 4px;
-                font-size: 12px;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
+            line-height: 1.4;
         }
 
         .highlight {
             background: #fff3cd !important;
+        }
+
+        /* Ensure good iframe compatibility */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Mobile responsive for iframe */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 8px;
+                min-height: calc(100vh - 10px);
+            }
+
+            .header {
+                padding: 10px;
+            }
+
+            .spreadsheet {
+                padding: 10px;
+            }
+
+            .cell-input {
+                height: 30px;
+                font-size: 10px;
+            }
+
+            th, .row-label {
+                padding: 6px 2px;
+                font-size: 10px;
+            }
+
+            button {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-width: 80px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Budget Calculator Spreadsheet</h1>
-            <p>Enter your income and expenses to calculate your budget</p>
+            <h1>Budget Calculator</h1>
+            <p>Interactive spreadsheet for income and expense tracking</p>
         </div>
 
         <div class="spreadsheet">
             <table id="spreadsheet">
                 <thead>
                     <tr>
-                        <th style="width: 200px;">Category</th>
-                        <th style="width: 120px;">January</th>
-                        <th style="width: 120px;">February</th>
-                        <th style="width: 120px;">March</th>
-                        <th style="width: 120px;">Total</th>
-                        <th style="width: 120px;">Average</th>
+                        <th style="width: 25%;">Category</th>
+                        <th style="width: 15%;">Jan</th>
+                        <th style="width: 15%;">Feb</th>
+                        <th style="width: 15%;">Mar</th>
+                        <th style="width: 15%;">Total</th>
+                        <th style="width: 15%;">Avg</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Income Section -->
                     <tr>
-                        <td class="row-label">INCOME</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td class="row-label"><strong>INCOME</strong></td>
+                        <td></td><td></td><td></td><td></td><td></td>
                     </tr>
                     <tr>
                         <td class="row-label">Salary</td>
@@ -264,12 +278,8 @@
 
                     <!-- Expenses Section -->
                     <tr>
-                        <td class="row-label">EXPENSES</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td class="row-label"><strong>EXPENSES</strong></td>
+                        <td></td><td></td><td></td><td></td><td></td>
                     </tr>
                     <tr>
                         <td class="row-label">Housing</td>
@@ -325,89 +335,101 @@
             </table>
 
             <div class="formula-display">
-                <strong>Formulas:</strong><br>
+                <strong>How it works:</strong><br>
+                • Type numbers in Jan, Feb, Mar columns<br>
                 • Total Income = Salary + Other Income<br>
-                • Total Expenses = Housing + Food + Transportation + Other Expenses<br>
+                • Total Expenses = All expense categories<br>
                 • Net Income = Total Income - Total Expenses<br>
-                • Total = Sum of all months<br>
-                • Average = Total ÷ 3 months
+                • Calculations update automatically
             </div>
         </div>
 
         <div class="controls">
             <div class="btn-group">
-                <button class="btn-primary" onclick="calculateAll()">📊 Calculate All</button>
-                <button class="btn-secondary" onclick="clearAll()">🗑️ Clear All</button>
-                <button class="btn-success" onclick="exportData()">💾 Export Data</button>
+                <button class="btn-primary" onclick="calculateAll()">📊 Calculate</button>
+                <button class="btn-secondary" onclick="clearAll()">🗑️ Clear</button>
+                <button class="btn-success" onclick="exportData()">💾 Export</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Ensure the page is fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Calculator loaded successfully');
+            calculateAll();
+        });
+
         // Auto-calculate when any input changes
         document.addEventListener('input', function(e) {
             if (e.target.classList.contains('cell-input') && !e.target.readOnly) {
-                calculateAll();
+                setTimeout(calculateAll, 10); // Small delay to ensure value is set
             }
         });
 
         function calculateAll() {
-            // Calculate row totals (sum across months)
-            for (let row = 1; row <= 9; row++) {
-                let total = 0;
-                for (let col = 1; col <= 3; col++) {
-                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    if (cell && !cell.readOnly) {
-                        total += parseFloat(cell.value) || 0;
+            try {
+                // Calculate row totals (sum across months)
+                for (let row = 1; row <= 9; row++) {
+                    let total = 0;
+                    for (let col = 1; col <= 3; col++) {
+                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        if (cell && !cell.readOnly) {
+                            total += parseFloat(cell.value) || 0;
+                        }
+                    }
+                    
+                    // Set total
+                    const totalCell = document.querySelector(`[data-row="${row}"][data-col="4"]`);
+                    if (totalCell) {
+                        totalCell.value = total.toFixed(2);
+                    }
+                    
+                    // Set average
+                    const avgCell = document.querySelector(`[data-row="${row}"][data-col="5"]`);
+                    if (avgCell) {
+                        avgCell.value = (total / 3).toFixed(2);
                     }
                 }
-                
-                // Set total
-                const totalCell = document.querySelector(`[data-row="${row}"][data-col="4"]`);
-                if (totalCell) {
-                    totalCell.value = total.toFixed(2);
-                }
-                
-                // Set average
-                const avgCell = document.querySelector(`[data-row="${row}"][data-col="5"]`);
-                if (avgCell) {
-                    avgCell.value = (total / 3).toFixed(2);
-                }
-            }
 
-            // Calculate column totals (income, expenses, net)
-            for (let col = 1; col <= 5; col++) {
-                // Total Income (row 3) = Salary (row 1) + Other Income (row 2)
-                const income1 = parseFloat(document.querySelector(`[data-row="1"][data-col="${col}"]`).value) || 0;
-                const income2 = parseFloat(document.querySelector(`[data-row="2"][data-col="${col}"]`).value) || 0;
-                document.querySelector(`[data-row="3"][data-col="${col}"]`).value = (income1 + income2).toFixed(2);
+                // Calculate column totals (income, expenses, net)
+                for (let col = 1; col <= 5; col++) {
+                    // Total Income (row 3) = Salary (row 1) + Other Income (row 2)
+                    const income1 = parseFloat(document.querySelector(`[data-row="1"][data-col="${col}"]`).value) || 0;
+                    const income2 = parseFloat(document.querySelector(`[data-row="2"][data-col="${col}"]`).value) || 0;
+                    document.querySelector(`[data-row="3"][data-col="${col}"]`).value = (income1 + income2).toFixed(2);
 
-                // Total Expenses (row 8) = sum of expense rows (4-7)
-                let totalExpenses = 0;
-                for (let expenseRow = 4; expenseRow <= 7; expenseRow++) {
-                    totalExpenses += parseFloat(document.querySelector(`[data-row="${expenseRow}"][data-col="${col}"]`).value) || 0;
-                }
-                document.querySelector(`[data-row="8"][data-col="${col}"]`).value = totalExpenses.toFixed(2);
+                    // Total Expenses (row 8) = sum of expense rows (4-7)
+                    let totalExpenses = 0;
+                    for (let expenseRow = 4; expenseRow <= 7; expenseRow++) {
+                        totalExpenses += parseFloat(document.querySelector(`[data-row="${expenseRow}"][data-col="${col}"]`).value) || 0;
+                    }
+                    document.querySelector(`[data-row="8"][data-col="${col}"]`).value = totalExpenses.toFixed(2);
 
-                // Net Income (row 9) = Total Income - Total Expenses
-                const totalIncome = parseFloat(document.querySelector(`[data-row="3"][data-col="${col}"]`).value) || 0;
-                const netIncome = totalIncome - totalExpenses;
-                const netCell = document.querySelector(`[data-row="9"][data-col="${col}"]`);
-                netCell.value = netIncome.toFixed(2);
-                
-                // Color coding for net income
-                if (netIncome > 0) {
-                    netCell.style.color = '#28a745';
-                } else if (netIncome < 0) {
-                    netCell.style.color = '#dc3545';
-                } else {
-                    netCell.style.color = '#495057';
+                    // Net Income (row 9) = Total Income - Total Expenses
+                    const totalIncome = parseFloat(document.querySelector(`[data-row="3"][data-col="${col}"]`).value) || 0;
+                    const netIncome = totalIncome - totalExpenses;
+                    const netCell = document.querySelector(`[data-row="9"][data-col="${col}"]`);
+                    if (netCell) {
+                        netCell.value = netIncome.toFixed(2);
+                        
+                        // Color coding for net income
+                        if (netIncome > 0) {
+                            netCell.style.color = '#28a745';
+                        } else if (netIncome < 0) {
+                            netCell.style.color = '#dc3545';
+                        } else {
+                            netCell.style.color = '#495057';
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error('Calculation error:', error);
             }
         }
 
         function clearAll() {
-            if (confirm('Are you sure you want to clear all data?')) {
+            if (confirm('Clear all data?')) {
                 document.querySelectorAll('.cell-input:not([readonly])').forEach(input => {
                     input.value = '';
                 });
@@ -416,39 +438,45 @@
         }
 
         function exportData() {
-            const data = [];
-            const rows = document.querySelectorAll('#spreadsheet tbody tr');
-            
-            rows.forEach(row => {
-                const rowData = [];
-                const cells = row.querySelectorAll('td');
-                cells.forEach(cell => {
-                    const input = cell.querySelector('.cell-input');
-                    if (input) {
-                        rowData.push(input.value || '0');
-                    } else {
-                        rowData.push(cell.textContent.trim());
+            try {
+                const data = [];
+                const rows = document.querySelectorAll('#spreadsheet tbody tr');
+                
+                rows.forEach(row => {
+                    const rowData = [];
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach(cell => {
+                        const input = cell.querySelector('.cell-input');
+                        if (input) {
+                            rowData.push(input.value || '0');
+                        } else {
+                            rowData.push(cell.textContent.trim());
+                        }
+                    });
+                    if (rowData.length > 0 && rowData[0] !== '') {
+                        data.push(rowData.join(','));
                     }
                 });
-                if (rowData.length > 0) {
-                    data.push(rowData.join(','));
-                }
-            });
 
-            const csvContent = "Category,January,February,March,Total,Average\n" + data.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'budget_calculation.csv';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
+                const csvContent = "Category,January,February,March,Total,Average\n" + data.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'budget_calculation.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Export failed. Please try again.');
+            }
         }
 
-        // Initialize calculations
-        calculateAll();
+        // Initialize calculations after a short delay
+        setTimeout(calculateAll, 100);
     </script>
 </body>
 </html>
