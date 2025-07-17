@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-Frame-Options" content="ALLOWALL">
-    <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
-    <title>Interactive Spreadsheet Calculator</title>
+    <title>TEST EMBED - Simple Calculator</title>
     <style>
         * {
             margin: 0;
@@ -14,25 +13,19 @@
         }
 
         html, body {
-            height: 100%;
-            overflow-x: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 10px;
-            min-height: 100vh;
+            height: 600px;
+            width: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
 
         .container {
-            max-width: 100%;
-            margin: 0 auto;
+            height: 600px;
+            width: 100%;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            min-height: calc(100vh - 20px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -40,443 +33,115 @@
             color: white;
             padding: 15px;
             text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
 
-        .header h1 {
-            font-size: 20px;
-            margin-bottom: 5px;
+        .calculator {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 12px;
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
-        .spreadsheet {
-            padding: 15px;
-            overflow-x: auto;
+        .label {
+            width: 120px;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-
-        th {
-            background: #f8f9fa;
-            color: #495057;
-            padding: 8px 4px;
-            text-align: center;
-            font-weight: 600;
-            border: 1px solid #dee2e6;
-            font-size: 11px;
-        }
-
-        td {
-            border: 1px solid #dee2e6;
-            padding: 0;
-            position: relative;
-        }
-
-        .cell-input {
-            width: 100%;
+        input {
+            width: 80px;
             height: 35px;
-            border: none;
-            padding: 5px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
             text-align: center;
-            font-size: 11px;
-            background: transparent;
+            font-size: 14px;
+            padding: 5px;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
             outline: none;
         }
 
-        .cell-input:focus {
-            background: #e3f2fd;
-            box-shadow: inset 0 0 0 2px #4a90e2;
+        input[readonly] {
+            background: #f5f5f5;
+            font-weight: bold;
         }
 
-        .cell-input[readonly] {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-        }
-
-        .calculation-row {
-            background: #f8f9fa;
-        }
-
-        .row-label {
-            background: #f8f9fa;
-            font-weight: 600;
-            text-align: center;
-            padding: 8px 4px;
-            border: 1px solid #dee2e6;
-            white-space: nowrap;
-            font-size: 11px;
-            min-width: 120px;
-        }
-
-        .controls {
-            padding: 15px;
-            background: #f8f9fa;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 100px;
-        }
-
-        .btn-primary {
-            background: #4a90e2;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #357abd;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .formula-display {
-            margin-top: 10px;
+        .result {
+            background: #e8f5e8;
             padding: 10px;
-            background: #e9ecef;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            color: #495057;
-            line-height: 1.4;
-        }
-
-        .highlight {
-            background: #fff3cd !important;
-        }
-
-        /* Ensure good iframe compatibility */
-        .container {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Mobile responsive for iframe */
-        @media (max-width: 600px) {
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                border-radius: 8px;
-                min-height: calc(100vh - 10px);
-            }
-
-            .header {
-                padding: 10px;
-            }
-
-            .spreadsheet {
-                padding: 10px;
-            }
-
-            .cell-input {
-                height: 30px;
-                font-size: 10px;
-            }
-
-            th, .row-label {
-                padding: 6px 2px;
-                font-size: 10px;
-            }
-
-            button {
-                padding: 6px 10px;
-                font-size: 11px;
-                min-width: 80px;
-            }
+            border-radius: 4px;
+            font-weight: bold;
+            color: #2d5a2d;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Budget Calculator</h1>
-            <p>Interactive spreadsheet for income and expense tracking</p>
+            <h2>🧮 TEST EMBED - Simple Calculator</h2>
+            <p>If you can see this working, embedding is successful!</p>
         </div>
 
-        <div class="spreadsheet">
-            <table id="spreadsheet">
-                <thead>
-                    <tr>
-                        <th style="width: 25%;">Category</th>
-                        <th style="width: 15%;">Jan</th>
-                        <th style="width: 15%;">Feb</th>
-                        <th style="width: 15%;">Mar</th>
-                        <th style="width: 15%;">Total</th>
-                        <th style="width: 15%;">Avg</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Income Section -->
-                    <tr>
-                        <td class="row-label"><strong>INCOME</strong></td>
-                        <td></td><td></td><td></td><td></td><td></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Salary</td>
-                        <td><input type="number" class="cell-input" data-row="1" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="1" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="1" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="1" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="1" data-col="5" readonly></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Other Income</td>
-                        <td><input type="number" class="cell-input" data-row="2" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="2" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="2" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="2" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="2" data-col="5" readonly></td>
-                    </tr>
-                    <tr class="calculation-row">
-                        <td class="row-label"><strong>Total Income</strong></td>
-                        <td><input type="number" class="cell-input" data-row="3" data-col="1" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="3" data-col="2" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="3" data-col="3" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="3" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="3" data-col="5" readonly></td>
-                    </tr>
-
-                    <!-- Expenses Section -->
-                    <tr>
-                        <td class="row-label"><strong>EXPENSES</strong></td>
-                        <td></td><td></td><td></td><td></td><td></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Housing</td>
-                        <td><input type="number" class="cell-input" data-row="4" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="4" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="4" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="4" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="4" data-col="5" readonly></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Food</td>
-                        <td><input type="number" class="cell-input" data-row="5" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="5" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="5" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="5" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="5" data-col="5" readonly></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Transportation</td>
-                        <td><input type="number" class="cell-input" data-row="6" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="6" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="6" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="6" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="6" data-col="5" readonly></td>
-                    </tr>
-                    <tr>
-                        <td class="row-label">Other Expenses</td>
-                        <td><input type="number" class="cell-input" data-row="7" data-col="1" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="7" data-col="2" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="7" data-col="3" placeholder="0"></td>
-                        <td><input type="number" class="cell-input" data-row="7" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="7" data-col="5" readonly></td>
-                    </tr>
-                    <tr class="calculation-row">
-                        <td class="row-label"><strong>Total Expenses</strong></td>
-                        <td><input type="number" class="cell-input" data-row="8" data-col="1" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="8" data-col="2" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="8" data-col="3" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="8" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="8" data-col="5" readonly></td>
-                    </tr>
-
-                    <!-- Net Income Section -->
-                    <tr class="calculation-row highlight">
-                        <td class="row-label"><strong>Net Income</strong></td>
-                        <td><input type="number" class="cell-input" data-row="9" data-col="1" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="9" data-col="2" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="9" data-col="3" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="9" data-col="4" readonly></td>
-                        <td><input type="number" class="cell-input" data-row="9" data-col="5" readonly></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="formula-display">
-                <strong>How it works:</strong><br>
-                • Type numbers in Jan, Feb, Mar columns<br>
-                • Total Income = Salary + Other Income<br>
-                • Total Expenses = All expense categories<br>
-                • Net Income = Total Income - Total Expenses<br>
-                • Calculations update automatically
+        <div class="calculator">
+            <div class="row">
+                <div class="label">Income:</div>
+                <input type="number" id="income" placeholder="5000" onchange="calculate()">
             </div>
-        </div>
 
-        <div class="controls">
-            <div class="btn-group">
-                <button class="btn-primary" onclick="calculateAll()">📊 Calculate</button>
-                <button class="btn-secondary" onclick="clearAll()">🗑️ Clear</button>
-                <button class="btn-success" onclick="exportData()">💾 Export</button>
+            <div class="row">
+                <div class="label">Expenses:</div>
+                <input type="number" id="expenses" placeholder="3000" onchange="calculate()">
+            </div>
+
+            <div class="row">
+                <div class="label">Net Income:</div>
+                <input type="number" id="result" readonly>
+            </div>
+
+            <div class="result" id="message">
+                Enter your income and expenses above to see the calculation!
             </div>
         </div>
     </div>
 
     <script>
-        // Ensure the page is fully loaded before initializing
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Calculator loaded successfully');
-            calculateAll();
-        });
-
-        // Auto-calculate when any input changes
-        document.addEventListener('input', function(e) {
-            if (e.target.classList.contains('cell-input') && !e.target.readOnly) {
-                setTimeout(calculateAll, 10); // Small delay to ensure value is set
-            }
-        });
-
-        function calculateAll() {
-            try {
-                // Calculate row totals (sum across months)
-                for (let row = 1; row <= 9; row++) {
-                    let total = 0;
-                    for (let col = 1; col <= 3; col++) {
-                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                        if (cell && !cell.readOnly) {
-                            total += parseFloat(cell.value) || 0;
-                        }
-                    }
-                    
-                    // Set total
-                    const totalCell = document.querySelector(`[data-row="${row}"][data-col="4"]`);
-                    if (totalCell) {
-                        totalCell.value = total.toFixed(2);
-                    }
-                    
-                    // Set average
-                    const avgCell = document.querySelector(`[data-row="${row}"][data-col="5"]`);
-                    if (avgCell) {
-                        avgCell.value = (total / 3).toFixed(2);
-                    }
-                }
-
-                // Calculate column totals (income, expenses, net)
-                for (let col = 1; col <= 5; col++) {
-                    // Total Income (row 3) = Salary (row 1) + Other Income (row 2)
-                    const income1 = parseFloat(document.querySelector(`[data-row="1"][data-col="${col}"]`).value) || 0;
-                    const income2 = parseFloat(document.querySelector(`[data-row="2"][data-col="${col}"]`).value) || 0;
-                    document.querySelector(`[data-row="3"][data-col="${col}"]`).value = (income1 + income2).toFixed(2);
-
-                    // Total Expenses (row 8) = sum of expense rows (4-7)
-                    let totalExpenses = 0;
-                    for (let expenseRow = 4; expenseRow <= 7; expenseRow++) {
-                        totalExpenses += parseFloat(document.querySelector(`[data-row="${expenseRow}"][data-col="${col}"]`).value) || 0;
-                    }
-                    document.querySelector(`[data-row="8"][data-col="${col}"]`).value = totalExpenses.toFixed(2);
-
-                    // Net Income (row 9) = Total Income - Total Expenses
-                    const totalIncome = parseFloat(document.querySelector(`[data-row="3"][data-col="${col}"]`).value) || 0;
-                    const netIncome = totalIncome - totalExpenses;
-                    const netCell = document.querySelector(`[data-row="9"][data-col="${col}"]`);
-                    if (netCell) {
-                        netCell.value = netIncome.toFixed(2);
-                        
-                        // Color coding for net income
-                        if (netIncome > 0) {
-                            netCell.style.color = '#28a745';
-                        } else if (netIncome < 0) {
-                            netCell.style.color = '#dc3545';
-                        } else {
-                            netCell.style.color = '#495057';
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Calculation error:', error);
+        function calculate() {
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const result = income - expenses;
+            
+            document.getElementById('result').value = result.toFixed(2);
+            
+            const message = document.getElementById('message');
+            if (result > 0) {
+                message.textContent = `✅ Great! You have $${result.toFixed(2)} left over.`;
+                message.style.background = '#e8f5e8';
+                message.style.color = '#2d5a2d';
+            } else if (result < 0) {
+                message.textContent = `⚠️ You're over budget by $${Math.abs(result).toFixed(2)}.`;
+                message.style.background = '#ffe8e8';
+                message.style.color = '#8b0000';
+            } else {
+                message.textContent = `💯 Perfect! Your budget is balanced.`;
+                message.style.background = '#e8f0ff';
+                message.style.color = '#0066cc';
             }
         }
 
-        function clearAll() {
-            if (confirm('Clear all data?')) {
-                document.querySelectorAll('.cell-input:not([readonly])').forEach(input => {
-                    input.value = '';
-                });
-                calculateAll();
-            }
-        }
-
-        function exportData() {
-            try {
-                const data = [];
-                const rows = document.querySelectorAll('#spreadsheet tbody tr');
-                
-                rows.forEach(row => {
-                    const rowData = [];
-                    const cells = row.querySelectorAll('td');
-                    cells.forEach(cell => {
-                        const input = cell.querySelector('.cell-input');
-                        if (input) {
-                            rowData.push(input.value || '0');
-                        } else {
-                            rowData.push(cell.textContent.trim());
-                        }
-                    });
-                    if (rowData.length > 0 && rowData[0] !== '') {
-                        data.push(rowData.join(','));
-                    }
-                });
-
-                const csvContent = "Category,January,February,March,Total,Average\n" + data.join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'budget_calculation.csv';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('Export failed. Please try again.');
-            }
-        }
-
-        // Initialize calculations after a short delay
-        setTimeout(calculateAll, 100);
+        // Test calculation on load
+        document.getElementById('income').value = '5000';
+        document.getElementById('expenses').value = '3500';
+        calculate();
     </script>
 </body>
 </html>
